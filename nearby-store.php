@@ -18,6 +18,7 @@
     @Plugin Activation 
 */
 
+
 register_activation_hook(
     __FILE__,
     'nl_activate_plugin'
@@ -27,7 +28,13 @@ function nl_activate_plugin(){
     
 }
 
-// Adding to menu 
+include plugin_dir_path(__FILE__) . 'class-maps-handle.php';
+include plugin_dir_path(__FILE__) . 'class-shortcode.php';
+
+
+/* 
+    @Adding to menu
+*/
 function nl_plugin_show_menu(){
     add_menu_page(
         "Nearby Store",
@@ -50,8 +57,9 @@ function nl_custom_admin_styles() {
 }
 add_action('admin_head', 'nl_custom_admin_styles');
 
-// Admin content function
-// Hook to register settings
+/* 
+    @Admin content function
+*/
 function nl_nearby_store_register_settings() {
     // Register options
     register_setting('nl_nearby_store_options_group', 'store_name');
@@ -59,7 +67,6 @@ function nl_nearby_store_register_settings() {
 }
 add_action('admin_init', 'nl_nearby_store_register_settings');
 
-// Admin content function
 function nl_nearby_store_admin_page_content() {
     ?>
     <div class="wrap">
@@ -92,7 +99,7 @@ function nl_nearby_store_admin_page_content() {
                             id="store_name" 
                             name="store_name" 
                             class="regular-text" 
-                            placeholder="Center country name"
+                            placeholder="Center city name"
                             value="<?php echo esc_attr(get_option('store_name')); ?>"
                             required
                         >
@@ -124,7 +131,6 @@ function nl_nearby_store_admin_page_content() {
     <?php
 }
 
-// Ensure success message only shows once
 function nl_nearby_store_add_success_message() {
     if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
         add_settings_error(
@@ -139,4 +145,13 @@ add_action('admin_notices', 'nl_nearby_store_add_success_message');
 
 
 
+// Register the REST API endpoint
+function nl_register_api_endpoint() {
+    register_rest_route('nl/v1', '/nearby-installers/', [
+        'methods' => ['GET', 'POST'],  // Support both GET and POST methods
+        'callback' => 'nl_get_nearby_installers',
+    ]);
+}
+add_action('rest_api_init', 'nl_register_api_endpoint');
 
+add_shortcode('nl_nearby_installer', 'nl_nearby_installer_shortcode');
