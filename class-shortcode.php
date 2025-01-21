@@ -284,7 +284,7 @@ function nl_nearby_installer_shortcode(){
         // Enqueue the first JavaScript file
         wp_enqueue_script(
             'nl-script-one', // Handle for the first script
-            'https://maps.googleapis.com/maps/api/js?key=AIzaSyDbOwo3HPw7YB8g54d3xi7HLENgbOpEjzk', // URL to the first script
+            'https://maps.googleapis.com/maps/api/js?key=', // URL to the first script
             array('jquery'), // Dependencies (optional, if your script uses jQuery)
             null, // Version number (set null to use the default version)
             true // Load the script in the footer (recommended)
