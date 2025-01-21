@@ -66,6 +66,13 @@ function nl_nearby_store_admin_page_content() {
         <h1 class="wp-heading-inline">Nearby Store</h1>
         <p>Welcome to the Nearby Store plugin settings page. Customize your options below.</p>
         
+        <?php
+        // Show success or error messages after settings are saved
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
+            echo '<div class="updated"><p>Settings saved successfully!</p></div>';
+        }
+        ?>
+        
         <!-- Example Form -->
         <form method="post" action="options.php">
             <?php
@@ -87,6 +94,7 @@ function nl_nearby_store_admin_page_content() {
                             class="regular-text" 
                             placeholder="Center country name"
                             value="<?php echo esc_attr(get_option('store_name')); ?>"
+                            required
                         >
                     </td>
                 </tr>
@@ -99,10 +107,13 @@ function nl_nearby_store_admin_page_content() {
                             type="text" 
                             id="store_location" 
                             name="store_location" 
-                            class="large-text" 
+                            class="regular-text" 
                             placeholder="Google maps api key"
                             value="<?php echo esc_attr(get_option('store_location')); ?>"
+                            required
                         >
+                       
+                        
                     </td>
                 </tr>
             </table>
@@ -112,5 +123,20 @@ function nl_nearby_store_admin_page_content() {
     </div>
     <?php
 }
+
+// Ensure success message only shows once
+function nl_nearby_store_add_success_message() {
+    if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
+        add_settings_error(
+            'nl_nearby_store_options_group', 
+            'settings_updated', 
+            'Settings saved successfully!', 
+            'updated'
+        );
+    }
+}
+add_action('admin_notices', 'nl_nearby_store_add_success_message');
+
+
 
 
