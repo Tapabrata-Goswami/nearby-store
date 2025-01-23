@@ -1,4 +1,172 @@
-
+const mapStyles = [
+    {
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#212121"
+            }
+        ]
+    },
+    {
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#757575"
+            }
+        ]
+    },
+    {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "color": "#212121"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#757575"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#212121"
+            }
+        ]
+    },
+    {
+        "featureType": "administrative.land_parcel",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#bdbdbd"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#eeeeee"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#757575"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#2c2c2c"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#212121"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#9e9e9e"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#3e3e3e"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#212121"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#f8f8f8"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#e5e5e5"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#757575"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#000000"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "color": "#3d3d3d"
+            }
+        ]
+    }
+];
 
 let map, markers = [], center;
 
@@ -38,7 +206,7 @@ function clearMarkers() {
 function createCustomMarker(markerData, map) {
     const customMarker = document.createElement("div");
     customMarker.className = "custom-marker";
-    customMarker.innerHTML = `<strong>${markerData.count}</strong>`;
+    customMarker.innerHTML = `<strong style="margin-left: 1px;">${markerData.count}</strong>`;
 
     const overlay = new google.maps.OverlayView();
     overlay.onAdd = function () {
@@ -74,8 +242,10 @@ async function initMap(query = null) {
     spinner.style.display = 'flex';
 
     try {
-        const bodyData = query ? { query } : {};
-        const response = await fetch('http://plugin-test.local/wp-json/nl/v1/nearby-installers/', {
+        const bodyData = query ? { city:query } : {};
+        // console.log('body-Data');
+        // console.log(bodyData);
+        const response = await fetch('/dddd/wp-json/nl/v1/nearby-installers/', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyData)
@@ -86,6 +256,7 @@ async function initMap(query = null) {
         }
 
         const data = await response.json();
+
         center = { lat: data.center.lat, lng: data.center.lon };
 
         clearMarkers();
@@ -143,7 +314,7 @@ function showInfoCard(markerData) {
 
 // Function to handle search
 function searchLocation() {
-    const query = document.getElementById("search-bar").value.trim().toLowerCase();
+    const query = document.getElementById("search-bar").value.trim();
     if (query) {
         initMap(query);
     } else {
@@ -151,14 +322,63 @@ function searchLocation() {
     }
 }
 
+
 // Initialize the map on window load
 window.onload = () => {
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: 12,
         mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: false
+        fullscreenControl: false,
+        styles:mapStyles
     });
 
     initMap(); // Default map load
 };
+
+
+
+// Declare the initAutocomplete function globally
+function initAutocomplete() {
+    const input = document.getElementById("search-bar");
+    if (input) {
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['(cities)'], // Restrict results to cities only
+            componentRestrictions: { country: "PL" },
+            language: 'en',// Restrict results to Poland
+            fields: ["address_components"], // Get the address components
+        });
+        
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (place.address_components) {
+                let city = "";
+                // Loop through the address components to find the city
+                place.address_components.forEach(component => {
+                    if (component.types.includes("locality")) {
+                        city = component.long_name; // Get the city name
+                    }
+                });
+
+                if (city) {
+                    console.log("Selected City:", city);
+                    // Display or handle the selected city here
+                    input.value = city;
+                    initMap(city);
+                    // Set the search bar value to the city name
+                } else {
+                    console.error("City not found in the selected place.");
+                }
+            } else {
+                console.error("No address components available for the selected place.");
+            }
+        });
+    } else {
+        console.error("Search input not found!");
+    }
+}
+// To make sure initAutocomplete is available globally after script loading
+window.initAutocomplete = initAutocomplete;
+
+

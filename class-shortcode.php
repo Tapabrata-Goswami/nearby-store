@@ -20,6 +20,7 @@ function nl_nearby_installer_shortcode(){
         transform: translateX(-50%);
         z-index: 9;
         background-color: white;
+        width: 400px;
     }
 
     #search-container input {
@@ -95,6 +96,7 @@ function nl_nearby_installer_shortcode(){
         border-radius: 8px;
         padding: 8px;
         margin-bottom: 16px;
+        gap:6px;
     }
 
     .ln-search-bar .ln-icon {
@@ -225,7 +227,27 @@ function nl_nearby_installer_shortcode(){
             transform: rotate(360deg);
         }
     }
-
+    .pac-container {
+        background-color: #f8f9fa !important; /* Light background */
+        border-radius: 8px !important; /* Rounded corners */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1) !important; /* Subtle shadow */
+        width: 400px !important;
+        left: 64px !important;
+        top: 180px !important;
+    }
+    
+    /* Customize each autocomplete item */
+    .pac-item {
+        font-family: Verdana, sans-serif !important; /* Change font */
+        font-size: 14px !important; /* Adjust font size */
+        color: #333 !important; /* Darker text */
+        padding: 10px !important; /* Add padding */
+    }
+    
+    /* Highlighted autocomplete item */
+    .pac-item:hover {
+        background-color: #e0e0e0 !important; /* Hover background */
+    }
 </style>
 <div class="main">
     <div class="ln-find-showroom" id="search-container">
@@ -239,62 +261,37 @@ function nl_nearby_installer_shortcode(){
                 <i class="fas fa-search"></i>
             </button>
         </div>
-        <div class="ln-filters">
-            <label>
-                <input type="checkbox" />
-                PREMIUM PARTNER
-                <span class="ln-info-icon" title="Information about Premium Partner">?</span>
-            </label>
-            <label>
-                <input type="checkbox" />
-                PARTNER STANDARD
-                <span class="ln-info-icon" title="Information about Partner Standard">?</span>
-            </label>
-            <label>
-                <input type="checkbox" />
-                SMART HOME PARTNER
-                <span class="ln-info-icon" title="Information about Smart Home Partner">?</span>
-            </label>
-        </div>
     </div>
     <div id="loading-spinner" class="loading-spinner" style="display: none;">
         <div class="spinner"></div>
     </div>
     <div id="map"></div>
     <div class="ln-card" id="info-card" style="display:none">
-        <!-- <div class="ln-header">
-            <h2>ELMONT</h2>
-        </div>
-        <div class="ln-content">
-            <p><strong>Address and Contact:</strong></p>
-            <p>AUGUST 15, 43, 96500<br>Sochaczew</p>
-            <a href="#" class="ln-link">
-                <span>📍</span> Plan Your Route
-            </a>
-            <p>📞 504088796</p>
-            <a href="mailto:elmont@oknoplast.com.pl" class="ln-link">
-                ✉️ elmont@oknoplast.com.pl
-            </a>
-        </div> -->
     </div>
 </div>
+
+<script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDbOwo3HPw7YB8g54d3xi7HLENgbOpEjzk&libraries=places&callback=initAutocomplete' async>
+    // Declare the initAutocomplete function in the global scope
+
+</script>
     <?php
 
     function nl_enqueue_scripts() {
         // Enqueue the first JavaScript file
-        wp_enqueue_script(
-            'nl-script-one', // Handle for the first script
-            'https://maps.googleapis.com/maps/api/js?key=', // URL to the first script
-            array('jquery'), // Dependencies (optional, if your script uses jQuery)
-            null, // Version number (set null to use the default version)
-            true // Load the script in the footer (recommended)
-        );
+        // wp_enqueue_script(
+        //     'nl-script-one', // Handle for the first script
+        //     // 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDbOwo3HPw7YB8g54d3xi7HLENgbOpEjzk', // URL to the first script
+        //     'https://maps.googleapis.com/maps/api/js?key=AIzaSyDbOwo3HPw7YB8g54d3xi7HLENgbOpEjzk&libraries=places',
+        //     array(), // Dependencies (optional, if your script uses jQuery)
+        //     null, // Version number (set null to use the default version)
+        //     true // Load the script in the footer (recommended)
+        // );
     
         // Enqueue the second JavaScript file
         wp_enqueue_script(
             'nl-script-two', // Handle for the second script
             plugin_dir_url(__FILE__) . 'js/map-handle.js', // URL to the second script
-            array('jquery'), // Dependencies (optional, if your script uses jQuery)
+            array(), // Dependencies (optional, if your script uses jQuery)
             null, // Version number (set null to use the default version)
             true // Load the script in the footer (recommended)
         );
