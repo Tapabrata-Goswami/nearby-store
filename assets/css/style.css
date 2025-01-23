@@ -240,3 +240,24 @@
 .hdpi.pac-logo:after {
     display: none;
 }
+
+@media only screen and (max-width:596px){
+    #search-container {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        z-index: 9;
+        background-color: white;
+        width: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 16px 24px;
+    }
+
+    .pac-container {
+        width: 100% !important;
+        left: 0px !important;
+        top: 144px !important;
+    }
+}
