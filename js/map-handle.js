@@ -206,7 +206,7 @@ function clearMarkers() {
 function createCustomMarker(markerData, map) {
     const customMarker = document.createElement("div");
     customMarker.className = "custom-marker";
-    customMarker.innerHTML = `<strong style="margin-left: 1px;">${markerData.count}</strong>`;
+    customMarker.innerHTML = `<strong">${markerData.count}</strong>`;
 
     const overlay = new google.maps.OverlayView();
     overlay.onAdd = function () {
@@ -245,7 +245,7 @@ async function initMap(query = null) {
         const bodyData = query ? { city:query } : {};
         // console.log('body-Data');
         // console.log(bodyData);
-        const response = await fetch('/dddd/wp-json/nl/v1/nearby-installers/', {
+        const response = await fetch('/wp-json/nl/v1/nearby-installers/', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyData)
@@ -257,10 +257,11 @@ async function initMap(query = null) {
 
         const data = await response.json();
 
+
         center = { lat: data.center.lat, lng: data.center.lon };
 
         clearMarkers();
-
+        const markerDataArray = [];
         data.results.slice(0, 5).forEach((result, index) => {
             const distanceKm = result.distance;
             const randomBearing = Math.random() * 360;
@@ -276,10 +277,12 @@ async function initMap(query = null) {
                 phone: result.data.phone,
                 email: result.data.email
             };
-
+            markerDataArray.push(markerData);
             createCustomMarker(markerData, map);
-        });
 
+            
+        });
+        query ? listHandleEvents(markerDataArray) : {};
         map.setCenter(center);
     } catch (error) {
         console.error('Error initializing map:', error);
@@ -300,17 +303,59 @@ function showInfoCard(markerData) {
         </div>
         <div class="ln-content">
             <p><strong>Address and Contact:</strong></p>
-            <p>${markerData.street}, ${markerData.post_code}<br>${markerData.city}</p>
-            <p>📞 ${markerData.phone}</p>
-            <a href="mailto:${markerData.email}" class="ln-link">✉️ ${markerData.email}</a>
+            <p class="ln-link-add">${markerData.street}, ${markerData.post_code} ${markerData.city}</p>
+            <a class="ln-link" href="tel:${markerData.phone}"><i class="fa-solid fa-phone"></i> ${markerData.phone}</a>
+            <a class="ln-link" href="mailto:${markerData.email}"><i class="fa-solid fa-envelope"></i> ${markerData.email}</a>
         </div>`;
     infoCard.innerHTML = infoAll;
-    infoCard.style.display = "block";
+    infoCard.style.display = "flex";
 
     document.getElementById("close-info-box").addEventListener("click", () => {
         infoCard.style.display = "none";
     });
 }
+
+// Function to handle list events
+function listHandleEvents(markerData){
+    const dataShowListContainer = document.getElementById('all-reslut-on-map');
+    let listPrent ='';
+    markerData.forEach((data, index)=>{
+        const listData = `
+            <div class="search-result" id="single-search-result-${index}">
+                <div class="ln-header">
+                    <h2>${data.title}</h2>
+                </div>
+                <div class="ln-content">
+                    <p class="ln-link-add">${data.street}, ${data.post_code} ${data.city}</p>
+                    <a class="ln-link" href="tel:${data.phone}"><i class="fa-solid fa-phone"></i> ${data.phone}</a>
+                </div>
+            </div>
+        `;
+        listPrent += listData;
+        
+    });
+
+    dataShowListContainer.innerHTML = listPrent;
+    dataShowListContainer.style.display = "block";
+
+    markerData.forEach((data, index) => {
+        const listItem = document.getElementById(`single-search-result-${index}`);
+        listItem.addEventListener('click', () => {
+            // Show info card
+            showInfoCard(data);
+
+            // Smooth zoom-out and zoom-in transition
+            map.setZoom(12); // Zoom out to a broader view
+            setTimeout(() => {
+                const position = new google.maps.LatLng(data.position.lat, data.position.lng);
+                map.panTo(position); // Pan to the marker's position
+                map.setZoom(13); // Zoom in to the marker
+            }, 800); // Delay before zooming in (adjust duration if needed)
+        });
+    });
+}
+
+
 
 // Function to handle search
 function searchLocation() {
@@ -330,7 +375,13 @@ window.onload = () => {
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
-        styles:mapStyles
+        disableDefaultUI: false,
+        styles:mapStyles,
+        zoomControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_TOP, // Move to the top-right corner
+        },
+
+
     });
 
     initMap(); // Default map load
